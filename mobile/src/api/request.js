@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-const BASE_URL = 'https://2234729b.r6.cpolar.cn/api/client';
+const BASE_URL = 'http://localhost:3000/api/client';
 
 const request = async (url, method = 'GET', data = {}) => {
   // 获取本地存的 token
