@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { getToken, clearAuth } from '../utils/auth';
 
 const request = axios.create({
-  baseURL: 'https://2234729b.r6.cpolar.cn/api',
+  baseURL: 'http://localhost:3000/api',
   timeout: 5000
 });
 
