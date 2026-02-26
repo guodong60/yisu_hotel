@@ -7,17 +7,36 @@ const { sendResponse } = require('../utils/response');
 // 1. 改造审核接口（兼容审核删除）
 exports.auditHotel = async (req, res) => {
   try {
-    const { status, rejectReason } = req.body;
-    const updateData = { status, rejectReason: rejectReason || '' };
-    
-    // 如果管理员同意删除，则进行“软删除”（对移动端彻底隐藏）
-    if (status === '已删除') {
-      updateData.isDeleted = true;
+    const { id } = req.params;
+    const { status, reason } = req.body;
+
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return require('../utils/response').sendResponse(res, 404, '酒店不存在');
+
+    // --- 核心状态机：分场景处理 ---
+    if (hotel.status === '待删除') {
+      if (status === '不通过') {
+        // 🚨 完美修复：管理员驳回删除申请，精准恢复到“申请删除前的小本本状态”
+        // 如果当时是“不通过”来申请的，就恢复成“不通过”
+        hotel.status = hotel.previousStatus || '不通过'; 
+        hotel.previousStatus = null; // 恢复后，清空记忆
+      } else if (status === '通过') {
+        // 兜底防御机制（虽然前端现在点同意是走彻底物理删除了）
+        hotel.status = '已删除';
+      }
+    } else {
+      // 正常的新酒店审核（审核中 -> 通过 / 不通过）
+      hotel.status = status;
     }
-    
-    await Hotel.findByIdAndUpdate(req.params.id, updateData);
-    require('../utils/response').sendResponse(res, 200, '审核操作成功');
+
+    if (reason) {
+      hotel.rejectReason = reason;
+    }
+
+    await hotel.save();
+    require('../utils/response').sendResponse(res, 200, '操作成功');
   } catch (error) {
+    console.error(error);
     require('../utils/response').sendResponse(res, 500, '审核失败');
   }
 };
