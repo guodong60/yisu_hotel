@@ -15,6 +15,11 @@ const HotelSchema = new mongoose.Schema({
     enum: ['审核中', '通过', '不通过', '待删除', '已删除'], // 👈 新增了待删除和已删除
     default: '审核中' 
   },
+  // 👇 新增这个字段：用来记忆“上一次的状态”
+  previousStatus: {
+    type: String,
+    default: null
+  },
   rejectReason: { type: String, default: '' },
   isDeleted: { type: Boolean, default: false }
 }, { timestamps: true });
