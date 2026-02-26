@@ -158,7 +158,7 @@ export default function AuditList() {
                 >
                   <Button type="link" danger style={{ padding: 0 }}>同意删除</Button>
                 </Popconfirm>
-                <Button type="link" style={{ padding: 0 }} onClick={() => handleDirectAudit(record._id, '通过')}>驳回请求</Button>
+                <Button type="link" style={{ padding: 0 }} onClick={() => handleDirectAudit(record._id, '不通过')}>驳回请求</Button>
               </>
             )}
 
