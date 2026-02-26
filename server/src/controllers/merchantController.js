@@ -115,11 +115,15 @@ exports.requestDeleteHotel = async (req, res) => {
   try {
     const hotel = await Hotel.findOne({ _id: req.params.id, merchantId: req.user.id });
     if (!hotel) return require('../utils/response').sendResponse(res, 404, '酒店不存在');
+
+    // 👇 核心修复：在变成“待删除”之前，先把它现在的状态（比如“不通过”）记在小本本上
+    hotel.previousStatus = hotel.status; 
     
-    hotel.status = '待删除';
+    hotel.status = '待删除'; // 然后再变状态
     await hotel.save();
-    require('../utils/response').sendResponse(res, 200, '已提交删除申请，等待管理员审核');
+
+    require('../utils/response').sendResponse(res, 200, '删除申请已提交');
   } catch (error) {
-    require('../utils/response').sendResponse(res, 500, '操作失败');
+    require('../utils/response').sendResponse(res, 500, '申请失败');
   }
 };
